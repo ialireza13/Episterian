@@ -47,22 +47,25 @@ def simulate(args):
         from_env_num = np.sum(from_env_inf)
 
         #from person infection
-#         tx = agents[agents['health']==2]['tile_x'][0]
-#         ty = agents[agents['health']==2]['tile_y'][0]
-#         on_tile = [all([agent['tile_x']==tx, agent['tile_y']==ty, agent['health']==0]) for agent in agents]
+    #         tx = agents[agents['health']==2]['tile_x'][0]
+    #         ty = agents[agents['health']==2]['tile_y'][0]
+    #         on_tile = [all([agent['tile_x']==tx, agent['tile_y']==ty, agent['health']==0]) for agent in agents]
 
         infectors = agents[ agents['health'] == 2 ]
 
-        on_tile = []
-        for infector in infectors:
+        on_each_tile = np.zeros((len(infectors), N),'bool') #those who are neighbors with each infector.
+
+        for infector_ind, infector in enumerate(infectors):
             tx = infector['tile_x']
             ty = infector['tile_y']
-            on_tile.extend([all([agent['tile_x']==tx, agent['tile_y']==ty, agent['health']==0]) for agent in agents])
+        #     on_tile.append([all([agent['tile_x']==tx, agent['tile_y']==ty, agent['health']==0]) for agent in agents])
+            on_each_tile[infector_ind] = [all([agent['tile_x']==tx, agent['tile_y']==ty, agent['health']==0]) for agent in agents]
 
+        on_tile = np.all(on_each_tile,0)
 
 
         on_tile_num = np.sum(on_tile)
-        
+
         from_per_inf = np.random.random(on_tile_num) < infection_rate
         agents['health'][on_tile] = from_per_inf
         from_per_num = np.sum(from_per_inf)
