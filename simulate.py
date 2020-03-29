@@ -1,5 +1,5 @@
 def simulate(args):
-    N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate, tile_infection_rate, tMax = args
+    N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate, tile_infection_rate, flow_rate, tMax = args
     import numpy as np
     
     tile_x_num = Lx-1
@@ -90,12 +90,19 @@ def simulate(args):
     agents = update_tile(agents)
     agents['health'][infection_seed] = 2
     pollution = pollute(agents, pollution)
-    for t in range(tMax):
-        walk(agents)
-        update_tile(agents)
-        pollute(agents, pollution)
-#         flow(agents, N_ill/N)
-        disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infetced(agents, pollution)
-        
+    if flow_rate>=1:
+        for t in range(tMax):
+            walk(agents)
+            update_tile(agents)
+            pollute(agents, pollution)
+            if t%flow_rate == 0:
+                flow(agents, N_ill/N)
+            disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infetced(agents, pollution)
+    else:
+        for t in range(tMax):
+            walk(agents)
+            update_tile(agents)
+            pollute(agents, pollution)
+            disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infetced(agents, pollution)
         
     return disease_timeline
