@@ -61,7 +61,7 @@ def simulate(args):
         #     on_tile.append([all([agent['tile_x']==tx, agent['tile_y']==ty, agent['health']==0]) for agent in agents])
             on_each_tile[infector_ind] = [all([agent['tile_x']==tx, agent['tile_y']==ty, agent['health']==0]) for agent in agents]
 
-        on_tile = np.all(on_each_tile,0)
+        on_tile = np.any(on_each_tile,0)
 
 
         on_tile_num = np.sum(on_tile)
