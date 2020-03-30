@@ -46,23 +46,17 @@ def simulate(args):
         agents['health'][susceptibles] = from_env_inf
         from_env_num = np.sum(from_env_inf)
 
-        #from person infection
-    #         tx = agents[agents['health']==2]['tile_x'][0]
-    #         ty = agents[agents['health']==2]['tile_y'][0]
-    #         on_tile = [all([agent['tile_x']==tx, agent['tile_y']==ty, agent['health']==0]) for agent in agents]
-
         infectors = agents[ agents['health'] == 2 ]
+#         on_each_tile = np.zeros((len(infectors), N),'bool') #those who are neighbors with each infector.
+#         for infector_ind, infector in enumerate(infectors):
+#             tx = infector['tile_x']
+#             ty = infector['tile_y']
+#         #     on_tile.append([all([agent['tile_x']==tx, agent['tile_y']==ty, agent['health']==0]) for agent in agents])
+#             on_each_tile[infector_ind] = [all([agent['tile_x']==tx, agent['tile_y']==ty, agent['health']==0]) for agent in agents]
+#         on_tile = np.any(on_each_tile,0)
 
-        on_each_tile = np.zeros((len(infectors), N),'bool') #those who are neighbors with each infector.
-
-        for infector_ind, infector in enumerate(infectors):
-            tx = infector['tile_x']
-            ty = infector['tile_y']
-        #     on_tile.append([all([agent['tile_x']==tx, agent['tile_y']==ty, agent['health']==0]) for agent in agents])
-            on_each_tile[infector_ind] = [all([agent['tile_x']==tx, agent['tile_y']==ty, agent['health']==0]) for agent in agents]
-
-        on_tile = np.any(on_each_tile,0)
-
+        tiles = [(infector['tile_x'], infector['tile_y']) for infector in infectors]
+        on_tile = [all([(agent['tile_x'], agent['tile_y']) in tiles, agent['health']==0]) for agent in agents]
 
         on_tile_num = np.sum(on_tile)
 
