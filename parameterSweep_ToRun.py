@@ -4,8 +4,8 @@ import multiprocessing as mp
 
 if __name__ ==  '__main__': 
     
-    infection_rate = (0.0,1.0,4)
-    tile_rate = (0.0,1.0,4)
+    infection_rate = (0.0,1.0,100)
+    tile_rate = (0.0,1.0,100)
     inf_rate_size = infection_rate[2]
     tile_rate_size = tile_rate[2]
     inf = np.linspace(infection_rate[0], infection_rate[1], infection_rate[2])
@@ -17,7 +17,7 @@ if __name__ ==  '__main__':
     N = 100
     N_ill = 1
     flow = 0
-    realisations = 2
+    realisations = 2000
     tMax = 1000
 
     per = np.zeros(shape=(inf_rate_size, tile_rate_size), dtype=float)
