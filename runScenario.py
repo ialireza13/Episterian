@@ -15,12 +15,12 @@ if __name__ ==  '__main__':
     N = 100
     N_ill = 1
 
-    realisations = 1000
+    realisations = 20000
     tMax = 1000
     #---------------N---N_ill--Lx--Ly----step---inf rate--poll rate--tile inf rate--flow rate--time  
-    jobs[0] = tuple([N, N_ill, Lx, Ly, stepSize, 0.01       , 0.01,        0.01,       0,    tMax])
-    jobs[1] = tuple([N, N_ill, Lx, Ly, stepSize, 0.01       , 0.99,        0.99,       0,    tMax])
-    jobs[2] = tuple([N, N_ill, Lx, Ly, stepSize, 0.99       , 0.01,        0.01,       0    ,tMax])
+    jobs[0] = tuple([N, N_ill, Lx, Ly, stepSize, 0.85       , 0.5,        0.5,       0,    tMax])
+    jobs[1] = tuple([N, N_ill, Lx, Ly, stepSize, 0.65       , 0.1,        0.1,       0,    tMax])
+    jobs[2] = tuple([N, N_ill, Lx, Ly, stepSize, 0.4       , 0.2,        0.2,       0    ,tMax])
 
     for job in jobs:
         works = [job for i in range(realisations)]
