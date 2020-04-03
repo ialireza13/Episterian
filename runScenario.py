@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from simulate import simulate
 import multiprocessing as mp
 
@@ -14,9 +15,9 @@ if __name__ ==  '__main__':
     N = 100
     N_ill = 1
 
-    realisations = 10
-    tMax = 100
-    #---------------N---N_ill--Lx--Ly----step---inf rate--poll rate--tile inf rate--flow rate--time
+    realisations = 1000
+    tMax = 1000
+    #---------------N---N_ill--Lx--Ly----step---inf rate--poll rate--tile inf rate--flow rate--time  
     jobs[0] = tuple([N, N_ill, Lx, Ly, stepSize, 0.01       , 0.01,        0.01,       0,    tMax])
     jobs[1] = tuple([N, N_ill, Lx, Ly, stepSize, 0.01       , 0.99,        0.99,       0,    tMax])
     jobs[2] = tuple([N, N_ill, Lx, Ly, stepSize, 0.99       , 0.01,        0.01,       0    ,tMax])
@@ -33,6 +34,15 @@ if __name__ ==  '__main__':
             
         ts = np.mean(results, axis=0)
         errors = np.std(results, axis=0)
-
-        np.save(str(int(job['infection rate']*100)) + "-" + str(int(job['tile infection rate']*100)), ts)
-        np.save(str(int(job['infection rate']*100)) + "-" + str(int(job['tile infection rate']*100))+"-err", errors)
+        
+        rand_string = str(np.random.randint(100000000))
+        id_string = 'i_r='+ str(int(job['infection rate']*100)) + ', t_r' + str(int(job['tile infection rate']*100)) + ', ' + rand_string
+        
+        np.save(id_string, results)
+        
+        with open("info "+rand_string, "w") as f: 
+            f.write( str(job)[1:-1] )
+        
+        
+        #np.save( id_string , ts)
+        #np.save(str(int(job['infection rate']*100)) + "-" + str(int(job['tile infection rate']*100))+"-err", errors)
