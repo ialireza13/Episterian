@@ -34,7 +34,8 @@ def simulate(args):
         
         polluted_x = agents['tile_x'][agents['health'] == 2]
         polluted_y = agents['tile_y'][agents['health'] == 2]
-        pollution[ polluted_x, polluted_y ] = (np.random.random(len(polluted_x)) < pollution_rate) * tile_infection_rate
+        rnd_list = np.random.random(len(polluted_x))
+        pollution[ polluted_x, polluted_y ] = (rnd_list < pollution_rate) * tile_infection_rate + (rnd_list >= pollution_rate) * pollution[ polluted_x, polluted_y ]
 
         return pollution
 
