@@ -1,12 +1,26 @@
-def simulate(args):
+import numpy as np
+
+def simulate(args, shuffled_pollution_activate = False, animatable_output = False):
     N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate, tile_infection_rate, flow_rate, tMax = args
-    import numpy as np
+
     
     tile_x_num = Lx-1
     tile_y_num = Ly-1
     
     tile_x_size = Lx / tile_x_num
     tile_y_size = Ly / tile_y_num
+    
+    if shuffled_pollution_activate:
+        shuffled_x = np.arange(tile_x_num)
+        shuffled_y = np.arange(tile_y_num)
+        np.random.shuffle(shuffled_x)
+        np.random.shuffle(shuffled_y)
+        
+        fake_pollution = np.zeros( (tile_x_num, tile_y_num),float )
+    
+    if animatable_output:
+        pollution_history = np.zeros( (tMax, tile_x_num, tile_y_num),float )
+        agents_history = np.zeros((tMax, N), dtype=[('x', 'float'), ('y', 'float'), ('tile_x',int), ('tile_y',int), ('health',int)] )
 
     def walk(agents):
         step = np.random.random(N) * 2.*np.pi
@@ -38,6 +52,20 @@ def simulate(args):
         pollution[ polluted_x, polluted_y ] = (rnd_list < pollution_rate) * tile_infection_rate + (rnd_list >= pollution_rate) * pollution[ polluted_x, polluted_y ]
 
         return pollution
+    
+    def shuffled_pollute(agents, pollution):
+        
+        polluted_x = agents['tile_x'][agents['health'] == 2]
+        polluted_y = agents['tile_y'][agents['health'] == 2]
+        rnd_list = np.random.random(len(polluted_x))
+        fake_pollution[ polluted_x, polluted_y ] = (rnd_list < pollution_rate) * tile_infection_rate + (rnd_list >= pollution_rate) * fake_pollution[ polluted_x, polluted_y ]
+        fake_pollution_num = np.sum(fake_pollution != 0)
+        print(fake_pollution_num)
+        
+        pollution[ shuffled_x[ :fake_pollution_num ], shuffled_y[ :fake_pollution_num ] ] = tile_infection_rate
+
+        return pollution
+
 
     def get_infetced(agents, pollution):
         susceptibles = agents['health'] == 0
@@ -87,20 +115,46 @@ def simulate(args):
     infection_seed = np.random.randint(N, size=N_ill)
     agents = update_tile(agents)
     agents['health'][infection_seed] = 2
-    pollution = pollute(agents, pollution)
+        
+    #pollution = pollute(agents, pollution)
     if flow_rate>=1:
         for t in range(tMax):
             walk(agents)
             update_tile(agents)
-            pollute(agents, pollution)
+            if shuffled_pollution_activate:
+                shuffled_pollute(agents, pollution)
+            else:
+                pollute(agents, pollution)
             if t%flow_rate == 0:
                 flow(agents, N_ill/N)
             disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infetced(agents, pollution)
+            
+            
+            if animatable_output:
+                pollution_history[t] = pollution
+                agents_history[t] = agents
+
+                
+            
     else:
         for t in range(tMax):
             walk(agents)
             update_tile(agents)
-            pollute(agents, pollution)
+            if shuffled_pollution_activate:
+                shuffled_pollute(agents, pollution)
+            else:
+                pollute(agents, pollution)
+                
             disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infetced(agents, pollution)
-        
+            
+            if animatable_output:
+                pollution_history[t] = pollution
+                agents_history[t] = agents
+
+    if animatable_output:
+        np.save('pollution_history', pollution_history)
+        np.save('agents_history', agents_history)
+        #if shuffled_pollution_activate:
+         #we can keep a record of the fake polluted tiles.   
+
     return disease_timeline
