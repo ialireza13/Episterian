@@ -74,3 +74,4 @@ trial.py
 *.hist
 */Legacy*
 Results/*
+*.npy
