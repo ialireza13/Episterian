@@ -75,3 +75,5 @@ trial.py
 */Legacy*
 Results/*
 *.npy
+__pycache__/*
+.ipynb_checkpoints
