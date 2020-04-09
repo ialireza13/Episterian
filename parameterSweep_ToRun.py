@@ -1,16 +1,17 @@
 import numpy as np
 from simulate import simulate
+#from dummy_simulate import simulate
 import multiprocessing as mp
 
 shuffled_pollution_activate = False
 
 if __name__ ==  '__main__': 
     
-    #infection_rate = (0.0, 0.25, 50)
-    #tile_rate = (0.0, 0.25, 50)
-    infection_rate = (0.0, 0.25, 2)
-    tile_rate = (0.0, 0.25, 2)
-
+    infection_rate = (0.0, 0.25, 50)
+    tile_rate = (0.0, 0.25, 50)
+    #infection_rate = (0.0, 0.25, 2)
+    #tile_rate = (0.0, 0.25, 2)
+    
     inf_rate_size = infection_rate[2]
     tile_rate_size = tile_rate[2]
     inf = np.linspace(infection_rate[0], infection_rate[1], infection_rate[2])
@@ -22,7 +23,8 @@ if __name__ ==  '__main__':
     N = 100
     N_ill = 1
     flow = 0
-    realisations = 1
+    realisations = 1000
+    #realisations = 1
     tMax = 1000
 
     per = np.zeros(shape=(inf_rate_size, tile_rate_size), dtype=float)
@@ -60,18 +62,16 @@ if __name__ ==  '__main__':
     if shuffled_pollution_activate:
         id_string = ' sh_p, ' + id_string
     
-    np.save('from_per' + id_string, per)
-    np.save('from_env' + id_string, env)
+    np.save('Results/from_per' + id_string, per)
+    np.save('Results/from_env' + id_string, env)
     
-    with open("info sweep " + rand_id, "w") as f: 
+    with open("Results/info sweep " + rand_id, "w") as f: 
         f.write( 'parameter sweep:\n' )
         if shuffled_pollution_activate:
             f.write('shuffled\n')
         else:
             f.write('not shuffled\n')
 
-        f.write('run number =' + realisations)
-        f.write('tMax =' + tMax)
         f.write( 'infection_rate='+str( infection_rate ) + '\n' )
         f.write( 'tile_rate='+str( tile_rate ) + '\n' )
         f.write( str(job)[1:-1] )

@@ -1,8 +1,16 @@
 import numpy as np
 
-def simulate(args, shuffled_pollution_activate = False, animatable_output = False):
-    N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate, tile_infection_rate, flow_rate, tMax = args
-
+def simulate(args):
+    shuffled_pollution_activate = False
+    animatable_output = False
+    if len(args) == 10:
+        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate, tile_infection_rate, flow_rate, tMax = args
+    elif len(args) == 11:
+        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate, tile_infection_rate, flow_rate, tMax, shuffled_pollution_activate = args
+    elif len(args) == 12:
+        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate, tile_infection_rate, flow_rate, tMax, shuffled_pollution_activate, animatable_output = args
+    else:
+        print("Number of arguments don't match for simulate.")
     
     tile_x_num = Lx-1
     tile_y_num = Ly-1
@@ -60,7 +68,7 @@ def simulate(args, shuffled_pollution_activate = False, animatable_output = Fals
         rnd_list = np.random.random(len(polluted_x))
         fake_pollution[ polluted_x, polluted_y ] = (rnd_list < pollution_rate) * tile_infection_rate + (rnd_list >= pollution_rate) * fake_pollution[ polluted_x, polluted_y ]
         fake_pollution_num = np.sum(fake_pollution != 0)
-        print(fake_pollution_num)
+        #print(fake_pollution_num)
         
         pollution[ shuffled_x[ :fake_pollution_num ], shuffled_y[ :fake_pollution_num ] ] = tile_infection_rate
 
@@ -152,8 +160,8 @@ def simulate(args, shuffled_pollution_activate = False, animatable_output = Fals
                 agents_history[t] = agents
 
     if animatable_output:
-        np.save('pollution_history', pollution_history)
-        np.save('agents_history', agents_history)
+        np.save('Results/pollution_history', pollution_history)
+        np.save('Results/agents_history', agents_history)
         #if shuffled_pollution_activate:
          #we can keep a record of the fake polluted tiles.   
 
