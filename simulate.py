@@ -3,12 +3,29 @@ import numpy as np
 def simulate(args):
     shuffled_pollution_activate = False
     animatable_output = False
+    centralized_infectious = False
+    
     if len(args) == 10:
-        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate, tile_infection_rate, flow_rate, tMax = args
+        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        , tile_infection_rate, flow_rate, tMax = args
+        
     elif len(args) == 11:
-        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate, tile_infection_rate, flow_rate, tMax, shuffled_pollution_activate = args
+
+        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        , tile_infection_rate, flow_rate, tMax, shuffled_pollution_activate = args
+        
     elif len(args) == 12:
-        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate, tile_infection_rate, flow_rate, tMax, shuffled_pollution_activate, animatable_output = args
+
+        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        , tile_infection_rate, flow_rate, tMax,\
+        shuffled_pollution_activate, animatable_output = args
+        
+    elif len(args) == 13:
+
+        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        , tile_infection_rate, flow_rate, tMax,\
+        shuffled_pollution_activate, animatable_output, centralized_infectious = args
+
     else:
         print("Number of arguments don't match for simulate.")
     
@@ -17,6 +34,13 @@ def simulate(args):
     
     tile_x_size = Lx / tile_x_num
     tile_y_size = Ly / tile_y_num
+    
+    
+    disease_timeline = np.zeros( ( tMax ), dtype=[ ('from_per',int), ('from_env',int)] )
+
+    agents = np.zeros((N), dtype=[('x', 'float'), ('y', 'float'), ('tile_x',int), ('tile_y',int), ('health',int)] )
+    pollution = np.zeros( (tile_x_num, tile_y_num),float )
+
     
     if shuffled_pollution_activate:
         shuffled_x = np.arange(tile_x_num)
@@ -110,21 +134,26 @@ def simulate(args):
         agents[leaver]['health'] = np.random.choice( [0,2], p=[1-init_infection_prob, init_infection_prob] )
         agents[leaver]['x'] = np.random.random() * Lx
         agents[leaver]['y'] = np.random.random() * Ly
+    
+    def init(agents, centralized_infectious):
+        
+        agents['x'] = np.random.random(N) * Lx
+        agents['y'] = np.random.random(N) * Ly
 
+        if not centralized_infectious:
+            infection_seed = np.random.randint(N, size=N_ill)
+
+            agents['health'][infection_seed] = 2
+        else: #centralized infectious seed
+            agents['x'][0], agents['y'][0] = Lx/2, Ly/2
+            agents['health'][0] = 2
+            
+        agents = update_tile(agents)            
         
     #disease_timeline = np.zeros( tMax ,dtype="int" )
-    disease_timeline = np.zeros( ( tMax ), dtype=[ ('from_per',int), ('from_env',int)] )
+    
+    init(agents, centralized_infectious)
 
-    agents = np.zeros((N), dtype=[('x', 'float'), ('y', 'float'), ('tile_x',int), ('tile_y',int), ('health',int)] )
-    agents['x'] = np.random.random(N) * Lx
-    agents['y'] = np.random.random(N) * Ly
-    pollution = np.zeros( (tile_x_num, tile_y_num),float )
-    ###initialize
-    infection_seed = np.random.randint(N, size=N_ill)
-    agents = update_tile(agents)
-    agents['health'][infection_seed] = 2
-        
-    #pollution = pollute(agents, pollution)
     if flow_rate>=1:
         for t in range(tMax):
             walk(agents)

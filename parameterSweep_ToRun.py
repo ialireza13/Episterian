@@ -4,6 +4,8 @@ from simulate import simulate
 import multiprocessing as mp
 
 shuffled_pollution_activate = False
+centralized_infectious = False
+
 
 if __name__ ==  '__main__': 
     
@@ -39,10 +41,17 @@ if __name__ ==  '__main__':
     for t in range(total_jobs):
         curr_row = int(t/(tile_rate_size))
         curr_col = t-int(t/(tile_rate_size))*(tile_rate_size)
-        if not shuffled_pollution_activate:
-            job = tuple([N, N_ill, Lx, Ly, stepSize, inf[curr_row], tile_inf[curr_col], tile_inf[curr_col], flow, tMax])
-        elif shuffled_pollution_activate:
-            job = tuple([N, N_ill, Lx, Ly, stepSize, inf[curr_row], tile_inf[curr_col], tile_inf[curr_col], flow, tMax, True])
+        
+        #if not shuffled_pollution_activate:
+            #job = tuple([N, N_ill, Lx, Ly, stepSize, inf[curr_row], tile_inf[curr_col], tile_inf[curr_col], flow, tMax])
+        #elif shuffled_pollution_activate:
+            #job = tuple([N, N_ill, Lx, Ly, stepSize, inf[curr_row], tile_inf[curr_col], tile_inf[curr_col], flow, tMax, True])
+        
+        
+        job = tuple([N, N_ill, Lx, Ly, stepSize, inf[curr_row]\
+                     , tile_inf[curr_col], tile_inf[curr_col], flow, tMax,\
+                     shuffled_pollution_activate, False, centralized_infectious\
+                     ])
         #job = 1,True, True
         works = [job for i in range(realisations)]
         with mp.Pool(mp.cpu_count()) as pool:
@@ -66,12 +75,14 @@ if __name__ ==  '__main__':
     np.save('Results/from_env' + id_string, env)
     
     with open("Results/info sweep " + rand_id, "w") as f: 
-        f.write( 'parameter sweep:\n' )
-        if shuffled_pollution_activate:
-            f.write('shuffled\n')
-        else:
-            f.write('not shuffled\n')
+        f.write( 'parameter sweep:\n\n' )
+        #if shuffled_pollution_activate:
+            #f.write('shuffled\n')
+        #else:
+            #f.write('not shuffled\n')
 
-        f.write( 'infection_rate='+str( infection_rate ) + '\n' )
-        f.write( 'tile_rate='+str( tile_rate ) + '\n' )
+        f.write( 'shuffled_pollution_activate=' + str( shuffled_pollution_activate ) + '\n' )
+        f.write( 'centralized_infectious=' + str( centralized_infectious ) + '\n' )
+        f.write( 'infection_rate=' + str( infection_rate ) + '\n' )
+        f.write( 'tile_rate=' + str( tile_rate ) + '\n' )
         f.write( str(job)[1:-1] )
