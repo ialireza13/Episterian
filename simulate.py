@@ -4,6 +4,7 @@ def simulate(args):
     shuffled_pollution_activate = False
     animatable_output = False
     centralized_infectious = False
+    state_after_infection = 2 #1 for E, 2 for I
     
     if len(args) == 10:
         N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
@@ -25,6 +26,14 @@ def simulate(args):
         N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
         , tile_infection_rate, flow_rate, tMax,\
         shuffled_pollution_activate, animatable_output, centralized_infectious = args
+
+    elif len(args) == 14:
+
+        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        , tile_infection_rate, flow_rate, tMax,\
+        shuffled_pollution_activate, animatable_output,\
+        centralized_infectious, state_after_infection = args
+
 
     else:
         print("Number of arguments don't match for simulate.")
@@ -99,22 +108,16 @@ def simulate(args):
         return pollution
 
 
-    def get_infetced(agents, pollution):
+    def get_infected(agents, pollution):
         susceptibles = agents['health'] == 0
         susceptibles_num = np.sum(susceptibles)
+        
         #from environment infection
         from_env_inf = np.random.random( susceptibles_num ) < pollution[ agents['tile_x'][susceptibles], agents['tile_y'][susceptibles] ]
-        agents['health'][susceptibles] = from_env_inf
+        agents['health'][susceptibles] = from_env_inf * state_after_infection
         from_env_num = np.sum(from_env_inf)
 
         infectors = agents[ agents['health'] == 2 ]
-#         on_each_tile = np.zeros((len(infectors), N),'bool') #those who are neighbors with each infector.
-#         for infector_ind, infector in enumerate(infectors):
-#             tx = infector['tile_x']
-#             ty = infector['tile_y']
-#         #     on_tile.append([all([agent['tile_x']==tx, agent['tile_y']==ty, agent['health']==0]) for agent in agents])
-#             on_each_tile[infector_ind] = [all([agent['tile_x']==tx, agent['tile_y']==ty, agent['health']==0]) for agent in agents]
-#         on_tile = np.any(on_each_tile,0)
 
         tiles = [(infector['tile_x'], infector['tile_y']) for infector in infectors]
         on_tile = [all([(agent['tile_x'], agent['tile_y']) in tiles, agent['health']==0]) for agent in agents]
@@ -122,7 +125,7 @@ def simulate(args):
         on_tile_num = np.sum(on_tile)
 
         from_per_inf = np.random.random(on_tile_num) < infection_rate
-        agents['health'][on_tile] = from_per_inf
+        agents['health'][on_tile] = from_per_inf * state_after_infection
         from_per_num = np.sum(from_per_inf)
 
         return from_per_num, from_env_num
@@ -164,7 +167,7 @@ def simulate(args):
                 pollute(agents, pollution)
             if t%flow_rate == 0:
                 flow(agents, N_ill/N)
-            disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infetced(agents, pollution)
+            disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infected(agents, pollution)
             
             
             if animatable_output:
@@ -182,7 +185,7 @@ def simulate(args):
             else:
                 pollute(agents, pollution)
                 
-            disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infetced(agents, pollution)
+            disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infected(agents, pollution)
             
             if animatable_output:
                 pollution_history[t] = pollution
