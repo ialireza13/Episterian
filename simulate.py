@@ -1,5 +1,5 @@
 import numpy as np
-
+from func import *
 def simulate(args):
     shuffled_pollution_activate = False
     animatable_output = False
@@ -72,123 +72,22 @@ def simulate(args):
         pollution_history = np.zeros( (tMax, tile_x_num, tile_y_num),float )
         agents_history = np.zeros((tMax, N), dtype=[('x', 'float'), ('y', 'float'), ('tile_x',int), ('tile_y',int), ('health',int)] )
 
-    def walk(agents):
-        step = np.random.random(N) * 2.*np.pi
-        dx = stepSize * np.cos(step)
-        dy = stepSize * np.sin(step)
-        agents['x'] += dx
-        agents['y'] += dy
-        passedRight = ((agents['x']+dx) > Lx)
-        passedLeft = ((agents['x']+dx) < 0)
-        passedTop = ((agents['y']+dy) > Ly)
-        passedBottom = ((agents['y']+dy) < 0)
-        agents['x'][passedRight] = 2.*Lx - dx[passedRight] - agents['x'][passedRight]
-        agents['x'][passedLeft] = -dx[passedLeft] - agents['x'][passedLeft]
-        agents['y'][passedTop] = 2.*Ly - dy[passedTop] - agents['y'][passedTop]
-        agents['y'][passedBottom] = -dy[passedBottom] - agents['y'][passedBottom]
-        return agents
-
-
-    def update_tile(agents):
-        agents['tile_x'] = agents['x'] / tile_x_size
-        agents['tile_y'] = agents['y'] / tile_y_size
-        return agents
-
-    def pollute(agents, pollution):
-        
-        polluted_x = agents['tile_x'][agents['health'] == 2]
-        polluted_y = agents['tile_y'][agents['health'] == 2]
-        rnd_list = np.random.random(len(polluted_x))
-        pollution[ polluted_x, polluted_y ] = (rnd_list < pollution_rate) * tile_infection_rate + (rnd_list >= pollution_rate) * pollution[ polluted_x, polluted_y ]
-
-        return pollution
-    
-    def shuffled_pollute(agents, pollution):
-        
-        polluted_x = agents['tile_x'][agents['health'] == 2]
-        polluted_y = agents['tile_y'][agents['health'] == 2]
-        rnd_list = np.random.random(len(polluted_x))
-        fake_pollution[ polluted_x, polluted_y ] = (rnd_list < pollution_rate) * tile_infection_rate + (rnd_list >= pollution_rate) * fake_pollution[ polluted_x, polluted_y ]
-        fake_pollution_num = np.sum(fake_pollution != 0)
-        #print(fake_pollution_num)
-        
-        pollution[ shuffled_x[ :fake_pollution_num ], shuffled_y[ :fake_pollution_num ] ] = tile_infection_rate
-
-        return pollution
-
-
-    def get_infected(agents, pollution):
-        susceptibles = agents['health'] == 0
-        susceptibles_num = np.sum(susceptibles)
-        
-        #from environment infection
-        from_env_inf = np.random.random( susceptibles_num ) < pollution[ agents['tile_x'][susceptibles], agents['tile_y'][susceptibles] ]
-        agents['health'][susceptibles] = from_env_inf * state_after_infection
-        from_env_num = np.sum(from_env_inf)
-
-        infectors = agents[ agents['health'] == 2 ]
-
-        tiles = [(infector['tile_x'], infector['tile_y']) for infector in infectors]
-        on_tile = [all([(agent['tile_x'], agent['tile_y']) in tiles, agent['health']==0]) for agent in agents]
-
-        on_tile_num = np.sum(on_tile)
-
-        from_per_inf = np.random.random(on_tile_num) < infection_rate
-        agents['health'][on_tile] = from_per_inf * state_after_infection
-        from_per_num = np.sum(from_per_inf)
-
-        return from_per_num, from_env_num
-    
-    def flow(agents, init_infection_prob):
-        leaver = np.random.randint(len( agents ))
-#         agents[leaver]['health'] = not(np.random.random() < init_infection_prob)
-#         agents[leaver]['health'] *= 2
-        agents[leaver]['health'] = np.random.choice( [0,2], p=[1-init_infection_prob, init_infection_prob] )
-        agents[leaver]['x'] = np.random.random() * Lx
-        agents[leaver]['y'] = np.random.random() * Ly
-
-    def flash_forward(agents, pollution):
-
-        (agents['health'][ agents['health'] == 1 ]) = 2
-        agents['x'] = np.random.random(N) * Lx
-        agents['y'] = np.random.random(N) * Ly
-        
-        agents = update_tile(agents)
-        
-        pollution[:] = 0
-
-
-    
-    def init(agents, centralized_infectious):
-        
-        agents['x'] = np.random.random(N) * Lx
-        agents['y'] = np.random.random(N) * Ly
-
-        if not centralized_infectious:
-            infection_seed = np.random.randint(N, size=N_ill)
-
-            agents['health'][infection_seed] = 2
-        else: #centralized infectious seed
-            agents['x'][0], agents['y'][0] = Lx/2, Ly/2
-            agents['health'][0] = 2
-            
-        agents = update_tile(agents)            
         
     #disease_timeline = np.zeros( tMax ,dtype="int" )
     
-    init(agents, centralized_infectious)
+    init(agents, N, N_ill, Lx, Ly, centralized_infectious, tile_x_size, tile_y_size)
 
     if flow_rate>=1:
         for t in range(tMax):
-            walk(agents)
-            update_tile(agents)
+            walk(agents, N, stepSize, Lx, Ly)
+            update_tile(agents, tile_x_size, tile_y_size)
             if shuffled_pollution_activate:
-                shuffled_pollute(agents, pollution)
+                shuffled_pollute(agents, pollution, pollution_rate, tile_infection_rate)
             else:
-                pollute(agents, pollution)
+                pollute(agents, pollution, pollution_rate, tile_infection_rate)
             if t%flow_rate == 0:
                 flow(agents, N_ill/N)
-            disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infected(agents, pollution)
+            disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infected(agents, pollution, state_after_infection, infection_rate)
             
             
             if animatable_output:
@@ -200,17 +99,17 @@ def simulate(args):
             
     else:
         for t in range(tMax):
-            walk(agents)
-            update_tile(agents)
+            walk(agents, N, stepSize, Lx, Ly)
+            update_tile(agents, tile_x_size, tile_y_size)
             if shuffled_pollution_activate:
-                shuffled_pollute(agents, pollution)
+                shuffled_pollute(agents, pollution, pollution_rate, tile_infection_rate)
             else:
-                pollute(agents, pollution)
+                pollute(agents, pollution, pollution_rate, tile_infection_rate)
                 
-            disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infected(agents, pollution)
+            disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infected(agents, pollution, state_after_infection, infection_rate)
             if opening_duration: #if flash_forward is happening
                 if (t % opening_duration == 0):
-                    flash_forward(agents, pollution)
+                    flash_forward(agents, N, pollution, Lx, Ly, tile_x_size, tile_y_size)
             print(t, pollution.sum())
 
 
