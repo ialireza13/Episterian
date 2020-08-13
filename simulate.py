@@ -5,7 +5,7 @@ def simulate(args):
     animatable_output = False
     centralized_infectious = False
     state_after_infection = 2 #1 for E, 2 for I
-    
+    opening_duration = 0 # 0 indicates no flash_forward
     if len(args) == 10:
         N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
         , tile_infection_rate, flow_rate, tMax = args
@@ -33,6 +33,15 @@ def simulate(args):
         , tile_infection_rate, flow_rate, tMax,\
         shuffled_pollution_activate, animatable_output,\
         centralized_infectious, state_after_infection = args
+        
+    elif len(args) == 15:
+
+        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        , tile_infection_rate, flow_rate, tMax,\
+        shuffled_pollution_activate, animatable_output,\
+        centralized_infectious, state_after_infection,\
+        opening_duration = args
+
 
 
     else:
@@ -137,6 +146,18 @@ def simulate(args):
         agents[leaver]['health'] = np.random.choice( [0,2], p=[1-init_infection_prob, init_infection_prob] )
         agents[leaver]['x'] = np.random.random() * Lx
         agents[leaver]['y'] = np.random.random() * Ly
+
+    def flash_forward(agents, pollution):
+
+        (agents['health'][ agents['health'] == 1 ]) = 2
+        agents['x'] = np.random.random(N) * Lx
+        agents['y'] = np.random.random(N) * Ly
+        
+        agents = update_tile(agents)
+        
+        pollution[:] = 0
+
+
     
     def init(agents, centralized_infectious):
         
@@ -173,6 +194,7 @@ def simulate(args):
             if animatable_output:
                 pollution_history[t] = pollution
                 agents_history[t] = agents
+            
 
                 
             
@@ -186,11 +208,17 @@ def simulate(args):
                 pollute(agents, pollution)
                 
             disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infected(agents, pollution)
+            if opening_duration: #if flash_forward is happening
+                if (t % opening_duration == 0):
+                    flash_forward(agents, pollution)
+            print(t, pollution.sum())
+
+
             
             if animatable_output:
                 pollution_history[t] = pollution
                 agents_history[t] = agents
-
+            #print(pollution)
     if animatable_output:
         np.save('Results/pollution_history', pollution_history)
         np.save('Results/agents_history', agents_history)
