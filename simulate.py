@@ -4,7 +4,7 @@ def simulate(args):
     shuffled_pollution_activate = False
     animatable_output = False
     centralized_infectious = False
-    state_after_infection = 2 #1 for E, 2 for I
+    state_after_infection = 1 #1 for E, 2 for I
     opening_duration = 0 # 0 indicates no flash_forward
     if len(args) == 10:
         N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
