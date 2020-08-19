@@ -16,9 +16,10 @@ def walk(agents, positions, N, stepSize, Lx, Ly, tile_x_size, tile_y_size):
     positions[:, 1][passedTop] = 2.*Ly - dy[passedTop] - positions[:, 1][passedTop]
     positions[:, 1][passedBottom] = -dy[passedBottom] - positions[:, 1][passedBottom]
     update_tile(agents, positions, tile_x_size, tile_y_size)
+
     return agents
 
-def active_walk(agents, positions, destinations, distances, N, stepSize, Lx, Ly, tile_x_size, tile_y_size, dt = 0.1):
+def active_walk(agents, positions, destinations, distances, N, Lx, Ly, tile_x_size, tile_y_size, dt = 0.1):
     
     agent_agent_interaction(agents, positions, distances)
     agent_wall_interaction(positions, Lx, Ly)
@@ -68,56 +69,43 @@ def agent_agent_interaction(agents, positions, distances, dt = 0.1, cut_off = 3)
         v2 = positions[i2, 2:4]
         # relative location & velocity vectors
         #r_rel = r1 - r2
-        
+
         distance = distances[i1, i2]
         r_norm = (r1 - r2) / distance
         sigma_1 = agents['sigma'][i1]
         sigma_2 = agents['sigma'][i2]
         force_mag_1 = sigma_1 * np.exp( -distance / sigma_1 )
         force_mag_2 = sigma_2 * np.exp( -distance / sigma_2 )
-        
+
         force_1 = force_mag_1 * r_norm
         force_2 = force_mag_2 * r_norm
-        
+
         positions[i1, 2:4] = positions[i1, 2:4] + force_1 *dt
         positions[i2, 2:4] = positions[i2, 2:4] - force_2 *dt
-        
-        # vector of the center of mass
-        #v_cm = (v1 + v2) / 2.
-        # collisions of spheres reflect v_rel over r_rel
-        #rr_rel = np.dot(r_rel, r_rel)
-        #vr_rel = np.dot(v_rel, r_rel)
-        #v_rel = v_rel - 2 * r_rel * vr_rel / rr_rel
-        # assign new velocities
-        #positions[i1, 2:] = v_cm + 0.5 * v_rel
-        #positions[i2, 2:] = v_cm - 0.5 * v_rel
+
 
 
 def agent_wall_interaction(positions, Lx, Ly, cut_off = 1, wall_sigma = 5, dt = 0.1):
-    
+
     r_indices = [0, 0, 1, 1]
     impact_directions = [1, -1, 1, -1]
     border_positions = [0, Lx, 0, Ly]
     for r_index, impact_direction, border_position in zip(r_indices, impact_directions, border_positions):
-        
+
         r = positions[:, r_index ]
         distance = np.abs( r - border_position )
         on_border = np.where( distance < cut_off)
-        
+
         force_mag = wall_sigma * np.exp( -distance[on_border] / wall_sigma )
-        
+
         force = force_mag * impact_direction
-        
+
         v_index = r_index + 2 #x, y, vx, vy
         positions[on_border, v_index] = positions[on_border, v_index] + force * dt
-        
 
-def agent_self_adjustment(agents, positions, destinations, Lx, Ly, tile_x_size, tile_y_size, prefer_speed = 1.3, dt = 0.1 ,tau_inv = 2.0):
-    #x = positions[:, 0]
-    #y = positions[:, 1]
-    #vx = positions[:, 2]
-    #vy = positions[:, 3]
-    #at_x = destinations
+
+def agent_self_adjustment(agents, positions, destinations, Lx, Ly, tile_x_size, tile_y_size, prefer_speed = 1.3, dt = 0.1 ,tau_inv = 2):
+
     r = positions[:, :2]
     v = positions[:, 2:4]
     tile_coords = np.array([tile_x_size, tile_y_size])
@@ -128,6 +116,7 @@ def agent_self_adjustment(agents, positions, destinations, Lx, Ly, tile_x_size, 
     prefer_v = directions * prefer_speed
     adj_force = ( prefer_v - v ) * tau_inv
     positions[:, 2:4] = v + adj_force * dt
+    
 
         
 def update_arrived_destinations( agents, destinations, Lx, Ly):
@@ -192,7 +181,7 @@ def get_infected(agents, pollution, distances, state_after_infection, infection_
             if agents['health'][neighbor] == 0: #if is susceptible
                 if np.random.random() < infection_rate:
                     agents['health'][neighbor] = state_after_infection
-                    print(neighbor)
+                    #print(neighbor)
                     from_per_num += 1
 
     return from_per_num, from_env_num
@@ -205,9 +194,9 @@ def flow(agents, init_infection_prob):
     agents[leaver]['x'] = np.random.random() * Lx
     agents[leaver]['y'] = np.random.random() * Ly
 
-def flash_forward(agents, positions, destinations, N, pollution, Lx, Ly, tile_x_size, tile_y_size):
+def flash_forward(agents, positions, destinations, distances, N, pollution, Lx, Ly, tile_x_size, tile_y_size):
 
-    init_movements(positions, destinations, N)
+    init_movements(agents, positions, destinations, distances, N, Lx, Ly, tile_x_size, tile_y_size)
     
     (agents['health'][ agents['health'] == 1 ]) = 2
     agents = update_tile(agents, positions, tile_x_size, tile_y_size)
@@ -215,9 +204,9 @@ def flash_forward(agents, positions, destinations, N, pollution, Lx, Ly, tile_x_
     pollution[:] = 0
 
 
-def init(agents, positions, destinations, N, N_ill, Lx, Ly, centralized_infectious, tile_x_size, tile_y_size):
+def init(agents, positions, destinations, distances, N, N_ill, Lx, Ly, centralized_infectious, tile_x_size, tile_y_size):
     
-    init_movements(positions, destinations, N, Lx, Ly)
+    init_movements(agents, positions, destinations, distances, N, Lx, Ly, tile_x_size, tile_y_size)
     
     if not centralized_infectious:
         
@@ -234,7 +223,7 @@ def init(agents, positions, destinations, N, N_ill, Lx, Ly, centralized_infectio
     agents = update_tile(agents, positions, tile_x_size, tile_y_size)        
 
 
-def init_movements(positions, destinations, N, Lx, Ly):
+def init_movements(agents, positions, destinations, distances, N, Lx, Ly, tile_x_size, tile_y_size):
     positions[:, 0] = np.random.random(N) * Lx
     positions[:, 1] = np.random.random(N) * Ly
     
@@ -245,8 +234,15 @@ def init_movements(positions, destinations, N, Lx, Ly):
     positions[:, 2] =  np.random.uniform(-1, 1, N)
     positions[:, 3] =  np.random.uniform(-1, 1, N)
     
-    positions[0, :] = [ 15, 21, 0, 0]
-    positions[1, :] = [ 15, 20, 0, 0]
+    #positions[0, :] = [ 15, 21, 0, 0]
+    #positions[1, :] = [ 15, 20, 0, 0]
+    
+    relax_agents(agents, positions, destinations, distances, N, Lx, Ly, tile_x_size, tile_y_size)
+    
+def relax_agents(agents, positions, destinations, distances, N, Lx, Ly, tile_x_size, tile_y_size, number_of_steps = 0):
+    for step in range(number_of_steps):
+        active_walk(agents, positions, destinations, distances, N, Lx, Ly, tile_x_size, tile_y_size)
+
 
 def get_destin_anim(destinations, destin_anim, tile_infection_rate):
     destin_anim[:] = 0

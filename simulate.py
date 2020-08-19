@@ -80,7 +80,6 @@ def simulate(args):
     
     positions = np.zeros((N, 4)) #x, y, vx, vy, sigma(interaction constant)
     distances = squareform(pdist(positions[:, :2]))
-    # print(id(distances))
     destinations = np.zeros((N, 2), int)
     
     
@@ -107,11 +106,11 @@ def simulate(args):
         
     #disease_timeline = np.zeros( tMax ,dtype="int" )
     
-    init(agents, positions, destinations, N, N_ill, Lx, Ly, centralized_infectious, tile_x_size, tile_y_size)
+    init(agents, positions, destinations, distances, N, N_ill, Lx, Ly, centralized_infectious, tile_x_size, tile_y_size)
     
     if flow_rate>=1:
         for t in range(tMax):
-            active_walk(agents, positions, destinations, distances, N, stepSize, Lx, Ly, tile_x_size, tile_y_size)
+            active_walk(agents, positions, destinations, distances, N, Lx, Ly, tile_x_size, tile_y_size)
             #walk(agents, positions, N, stepSize, Lx, Ly, tile_x_size, tile_y_size)
             #update_tile(agents, positions, tile_x_size, tile_y_size)
             if shuffled_pollution_activate:
@@ -137,7 +136,7 @@ def simulate(args):
     else:
         for t in range(tMax):
             
-            active_walk(agents, positions, destinations, distances, N, stepSize, Lx, Ly, tile_x_size, tile_y_size)
+            active_walk(agents, positions, destinations, distances, N, Lx, Ly, tile_x_size, tile_y_size)
             #walk(agents, positions, N, stepSize, Lx, Ly, tile_x_size, tile_y_size)
             #update_tile(agents, positions, tile_x_size, tile_y_size)
             if shuffled_pollution_activate:
@@ -150,7 +149,7 @@ def simulate(args):
             = get_infected(agents, pollution, distances, state_after_infection, infection_rate)
             if opening_duration: #if flash_forward is happening
                 if (t % opening_duration == 0):
-                    flash_forward(agents, positions, destinations, N, pollution, Lx, Ly, tile_x_size, tile_y_size)
+                    flash_forward(agents, positions, destinations, distances, N, pollution, Lx, Ly, tile_x_size, tile_y_size)
             #print(t, pollution.sum())
 
 
