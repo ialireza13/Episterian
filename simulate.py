@@ -59,7 +59,10 @@ def simulate(args):
 
     else:
         print("Number of arguments don't match for simulate.")
+    
+    # set random seed for each process
     np.random.seed(random_seed)
+    # print('rnd',str(np.random.randint(10000)))
     tile_x_num = Lx-1
     tile_y_num = Ly-1
     
@@ -77,7 +80,7 @@ def simulate(args):
     
     positions = np.zeros((N, 4)) #x, y, vx, vy, sigma(interaction constant)
     distances = squareform(pdist(positions[:, :2]))
-    print(id(distances))
+    # print(id(distances))
     destinations = np.zeros((N, 2), int)
     
     
