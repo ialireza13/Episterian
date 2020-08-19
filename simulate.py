@@ -1,5 +1,7 @@
 import numpy as np
+from scipy.spatial.distance import pdist, squareform
 from functions import *
+
 def simulate(args):
     shuffled_pollution_activate = False
     animatable_output = False
@@ -62,6 +64,7 @@ def simulate(args):
     
     tile_x_size = Lx / tile_x_num
     tile_y_size = Ly / tile_y_num
+
     
     
     disease_timeline = np.zeros( ( tMax ), dtype=[ ('from_per',int), ('from_env',int)] )
@@ -72,7 +75,10 @@ def simulate(args):
     agents['sigma'][:n_sigma_2] = sigma_2
     
     positions = np.zeros((N, 4)) #x, y, vx, vy, sigma(interaction constant)
+    distances = squareform(pdist(positions[:, :2]))
+    print(id(distances))
     destinations = np.zeros((N, 2), int)
+    
     
     pollution = np.zeros( (tile_x_num, tile_y_num),float )
 
@@ -101,7 +107,7 @@ def simulate(args):
     
     if flow_rate>=1:
         for t in range(tMax):
-            active_walk(agents, positions, destinations, N, stepSize, Lx, Ly, tile_x_size, tile_y_size)
+            active_walk(agents, positions, destinations, distances, N, stepSize, Lx, Ly, tile_x_size, tile_y_size)
             #walk(agents, positions, N, stepSize, Lx, Ly, tile_x_size, tile_y_size)
             #update_tile(agents, positions, tile_x_size, tile_y_size)
             if shuffled_pollution_activate:
@@ -111,11 +117,11 @@ def simulate(args):
                 pollute(agents, pollution, pollution_rate, tile_infection_rate)
             if t%flow_rate == 0:
                 flow(agents, N_ill/N)
-            disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infected(agents, pollution, state_after_infection, infection_rate)
+            disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] = get_infected(agents, pollution, distances, state_after_infection, infection_rate)
             
             
             if animatable_output:
-                get_destin_anim(destinations, destin_anim)
+                get_destin_anim(destinations, destin_anim, tile_infection_rate)
                 pollution_history[t] = pollution + destin_anim
                 agents_history[t]['x'] = positions[:, 0]
                 agents_history[t]['y'] = positions[:, 1]
@@ -127,7 +133,7 @@ def simulate(args):
     else:
         for t in range(tMax):
             
-            active_walk(agents, positions, destinations, N, stepSize, Lx, Ly, tile_x_size, tile_y_size)
+            active_walk(agents, positions, destinations, distances, N, stepSize, Lx, Ly, tile_x_size, tile_y_size)
             #walk(agents, positions, N, stepSize, Lx, Ly, tile_x_size, tile_y_size)
             #update_tile(agents, positions, tile_x_size, tile_y_size)
             if shuffled_pollution_activate:
@@ -137,7 +143,7 @@ def simulate(args):
                 pollute(agents, pollution, pollution_rate, tile_infection_rate)
                 
             disease_timeline[t]['from_per'], disease_timeline[t]['from_env'] \
-            = get_infected(agents, pollution, state_after_infection, infection_rate)
+            = get_infected(agents, pollution, distances, state_after_infection, infection_rate)
             if opening_duration: #if flash_forward is happening
                 if (t % opening_duration == 0):
                     flash_forward(agents, positions, destinations, N, pollution, Lx, Ly, tile_x_size, tile_y_size)
@@ -146,7 +152,7 @@ def simulate(args):
 
             
             if animatable_output:
-                get_destin_anim(destinations, destin_anim)
+                get_destin_anim(destinations, destin_anim, tile_infection_rate)
                 pollution_history[t] = pollution + destin_anim
                 agents_history[t]['x'] = positions[:, 0]
                 agents_history[t]['y'] = positions[:, 1]

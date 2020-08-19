@@ -18,10 +18,11 @@ def walk(agents, positions, N, stepSize, Lx, Ly, tile_x_size, tile_y_size):
     update_tile(agents, positions, tile_x_size, tile_y_size)
     return agents
 
-def active_walk(agents, positions, destinations, N, stepSize, Lx, Ly, tile_x_size, tile_y_size, dt = 0.1):
+def active_walk(agents, positions, destinations, distances, N, stepSize, Lx, Ly, tile_x_size, tile_y_size, dt = 0.1):
     
-    agent_agent_interaction(positions, agents)
+    agent_agent_interaction(agents, positions, distances)
     agent_wall_interaction(positions, Lx, Ly)
+
 
     agent_self_adjustment(agents, positions, destinations, Lx, Ly, tile_x_size, tile_y_size\
                           , prefer_speed = 1.1, dt = 0.1, tau_inv = 2)
@@ -49,9 +50,9 @@ def update_tile(agents, positions, tile_x_size, tile_y_size):
     return agents
 
 
-def agent_agent_interaction(positions, agents, dt = 0.1, cut_off = 3):
-    D = squareform(pdist(positions[:, :2]))
-    ind1, ind2 = np.where(D < cut_off)
+def agent_agent_interaction(agents, positions, distances, dt = 0.1, cut_off = 3):
+    distances[:] = squareform(pdist(positions[:, :2]))
+    ind1, ind2 = np.where(distances < cut_off)
 
     unique = (ind1 < ind2)
     ind1 = ind1[unique]
@@ -68,7 +69,7 @@ def agent_agent_interaction(positions, agents, dt = 0.1, cut_off = 3):
         # relative location & velocity vectors
         #r_rel = r1 - r2
         
-        distance = D[i1, i2]
+        distance = distances[i1, i2]
         r_norm = (r1 - r2) / distance
         sigma_1 = agents['sigma'][i1]
         sigma_2 = agents['sigma'][i2]
@@ -170,25 +171,30 @@ def shuffled_pollute(agents, pollution, fake_pollution, shuffled_x, shuffled_y, 
     return pollution
 
 
-def get_infected(agents, pollution, state_after_infection, infection_rate):
-    susceptibles = agents['health'] == 0
+def get_infected(agents, pollution, distances, state_after_infection, infection_rate, infection_cut_off = 1):
+    susceptibles = (agents['health'] == 0)
     susceptibles_num = np.sum(susceptibles)
     
-    #from environment infection
-    from_env_inf = np.random.random( susceptibles_num ) < pollution[ agents['tile_x'][susceptibles], agents['tile_y'][susceptibles] ]
+    ##from environment infection
+    from_env_inf = np.random.random( susceptibles_num ) < \
+    pollution[ agents['tile_x'][susceptibles], agents['tile_y'][susceptibles] ]
+    
     agents['health'][susceptibles] = from_env_inf * state_after_infection
     from_env_num = np.sum(from_env_inf)
 
-    infectors = agents[ agents['health'] == 2 ]
+    ##from per infection
 
-    tiles = [(infector['tile_x'], infector['tile_y']) for infector in infectors]
-    on_tile = [all([(agent['tile_x'], agent['tile_y']) in tiles, agent['health']==0]) for agent in agents]
-
-    on_tile_num = np.sum(on_tile)
-
-    from_per_inf = np.random.random(on_tile_num) < infection_rate
-    agents['health'][on_tile] = from_per_inf * state_after_infection
-    from_per_num = np.sum(from_per_inf)
+    infectors = np.where( agents['health'] == 2 )[0]
+    
+    from_per_num = 0
+    for infector in infectors:
+        close_enough = np.where(distances[infector] < infection_cut_off)[0] #close enough for infecton.
+        for neighbor in close_enough:
+            if agents['health'][neighbor] == 0: #if is susceptible
+                if np.random.random() < infection_rate:
+                    agents['health'][neighbor] = state_after_infection
+                    print(neighbor)
+                    from_per_num += 1
 
     return from_per_num, from_env_num
 
@@ -243,8 +249,11 @@ def init_movements(positions, destinations, N, Lx, Ly):
     positions[0, :] = [ 15, 21, 0, 0]
     positions[1, :] = [ 15, 20, 0, 0]
 
-def get_destin_anim(destinations, destin_anim):
+def get_destin_anim(destinations, destin_anim, tile_infection_rate):
     destin_anim[:] = 0
     
     #destin_anim[destinations[:, 0], destinations[:, 1]] = 0.05
-    destin_anim[destinations[0, 0], destinations[0, 1]] = 0.05
+    if tile_infection_rate:
+        destin_anim[destinations[0, 0], destinations[0, 1]] = (tile_infection_rate / 2)
+    else:
+        destin_anim[destinations[0, 0], destinations[0, 1]] = 0.5
