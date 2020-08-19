@@ -11,54 +11,58 @@ def simulate(args):
     sigma_1 = 2
     sigma_2 = 0
     n_sigma_2 = 0
-    if len(args) == 10:
-        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+    if len(args) == 11:
+        random_seed, N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
         , tile_infection_rate, flow_rate, tMax = args
-        
-    elif len(args) == 11:
-
-        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
-        , tile_infection_rate, flow_rate, tMax, shuffled_pollution_activate = args
         
     elif len(args) == 12:
 
-        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
-        , tile_infection_rate, flow_rate, tMax,\
-        shuffled_pollution_activate, animatable_output = args
+        random_seed, N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        , tile_infection_rate, flow_rate, tMax, shuffled_pollution_activate = args
         
     elif len(args) == 13:
 
-        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        random_seed, N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        , tile_infection_rate, flow_rate, tMax,\
+        shuffled_pollution_activate, animatable_output = args
+        
+    elif len(args) == 14:
+
+        random_seed, N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
         , tile_infection_rate, flow_rate, tMax,\
         shuffled_pollution_activate, animatable_output, centralized_infectious = args
 
-    elif len(args) == 14:
+    elif len(args) == 15:
 
-        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        random_seed, N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
         , tile_infection_rate, flow_rate, tMax,\
         shuffled_pollution_activate, animatable_output,\
         centralized_infectious, state_after_infection = args
         
-    elif len(args) == 15:
+    elif len(args) == 16:
 
-        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        random_seed, N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
         , tile_infection_rate, flow_rate, tMax,\
         shuffled_pollution_activate, animatable_output,\
         centralized_infectious, state_after_infection,\
         opening_duration = args
 
-    elif len(args) == 18:
+    elif len(args) == 19:
 
-        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        random_seed, N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
         , tile_infection_rate, flow_rate, tMax,\
         shuffled_pollution_activate, animatable_output,\
         centralized_infectious, state_after_infection,\
         opening_duration, sigma_1, sigma_2, n_sigma_2 = args
 
+        
 
     else:
         print("Number of arguments don't match for simulate.")
     
+    # set random seed for each process
+    np.random.seed(random_seed)
+    # print('rnd',str(np.random.randint(10000)))
     tile_x_num = Lx-1
     tile_y_num = Ly-1
     
@@ -76,7 +80,7 @@ def simulate(args):
     
     positions = np.zeros((N, 4)) #x, y, vx, vy, sigma(interaction constant)
     distances = squareform(pdist(positions[:, :2]))
-    print(id(distances))
+    # print(id(distances))
     destinations = np.zeros((N, 2), int)
     
     

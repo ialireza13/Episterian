@@ -112,7 +112,7 @@ def agent_wall_interaction(positions, Lx, Ly, cut_off = 1, wall_sigma = 5, dt = 
         positions[on_border, v_index] = positions[on_border, v_index] + force * dt
         
 
-def agent_self_adjustment(agents, positions, destinations, Lx, Ly, tile_x_size, tile_y_size, prefer_speed = 1.3, dt = 0.1 ,tau_inv = 10):
+def agent_self_adjustment(agents, positions, destinations, Lx, Ly, tile_x_size, tile_y_size, prefer_speed = 1.3, dt = 0.1 ,tau_inv = 2.0):
     #x = positions[:, 0]
     #y = positions[:, 1]
     #vx = positions[:, 2]
@@ -128,7 +128,6 @@ def agent_self_adjustment(agents, positions, destinations, Lx, Ly, tile_x_size, 
     prefer_v = directions * prefer_speed
     adj_force = ( prefer_v - v ) * tau_inv
     positions[:, 2:4] = v + adj_force * dt
-    
 
         
 def update_arrived_destinations( agents, destinations, Lx, Ly):
