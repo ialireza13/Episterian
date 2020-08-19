@@ -24,7 +24,7 @@ def active_walk(agents, positions, destinations, N, stepSize, Lx, Ly, tile_x_siz
     agent_wall_interaction(positions, Lx, Ly)
 
     agent_self_adjustment(agents, positions, destinations, Lx, Ly, tile_x_size, tile_y_size\
-                          , prefer_speed = 1.3, dt = 0.1, tau_inv = 2)
+                          , prefer_speed = 1.1, dt = 0.1, tau_inv = 2)
     x = positions[:, 0]
     y = positions[:, 1]
     vx = positions[:, 2]
@@ -49,7 +49,7 @@ def update_tile(agents, positions, tile_x_size, tile_y_size):
     return agents
 
 
-def agent_agent_interaction(positions, agents, dt = 0.1, cut_off = 2):
+def agent_agent_interaction(positions, agents, dt = 0.1, cut_off = 3):
     D = squareform(pdist(positions[:, :2]))
     ind1, ind2 = np.where(D < cut_off)
 

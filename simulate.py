@@ -6,6 +6,9 @@ def simulate(args):
     centralized_infectious = False
     state_after_infection = 1 #1 for E, 2 for I
     opening_duration = 0 # 0 indicates no flash_forward
+    sigma_1 = 2
+    sigma_2 = 0
+    n_sigma_2 = 0
     if len(args) == 10:
         N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
         , tile_infection_rate, flow_rate, tMax = args
@@ -42,6 +45,13 @@ def simulate(args):
         centralized_infectious, state_after_infection,\
         opening_duration = args
 
+    elif len(args) == 18:
+
+        N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        , tile_infection_rate, flow_rate, tMax,\
+        shuffled_pollution_activate, animatable_output,\
+        centralized_infectious, state_after_infection,\
+        opening_duration, sigma_1, sigma_2, n_sigma_2 = args
 
 
     else:
@@ -58,7 +68,8 @@ def simulate(args):
 
     agents = np.zeros((N), dtype=[('tile_x',int), ('tile_y',int), ('health',int), ('sigma', float)] )
     
-    agents['sigma'] = 2 # temp
+    agents['sigma'] = sigma_1 # temp
+    agents['sigma'][:n_sigma_2] = sigma_2
     
     positions = np.zeros((N, 4)) #x, y, vx, vy, sigma(interaction constant)
     destinations = np.zeros((N, 2), int)

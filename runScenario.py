@@ -10,24 +10,86 @@ centralized_infectious = False
 if __name__ ==  '__main__':
     
 
-    jobs = np.zeros((1), dtype=[('N', int), ('N_ill', int), ('Lx', int), ('Ly',int), ('step size',float), ('infection rate',float), ('pollution rate',float)\
+    jobs = np.zeros((3), dtype=[('N', int), ('N_ill', int), ('Lx', int), ('Ly',int), ('step size',float), ('infection rate',float), ('pollution rate',float)\
                     , ('tile infection rate',float), ('flow rate',float), ('time',int)\
-                    ,shuffled_pollution_activate, False, centralized_infectious
+                    ,('shuffled_pollution',bool), ('animation',bool), ('infectious_center', bool),\
+                        ('state_after_infection',int), ('opening_duration',int), ('sigma_1', float),\
+                            ('sigma_2', float),('n_sigma_2',int)
                      ] )
 
-    Lx = 30
-    Ly = 30
-    stepSize = 0.5
     N = 100
     N_ill = 1
-
-    realisations = 20000
-    tMax = 1000
+    Lx = Ly = 30
+    stepSize = 0.5
+    infection_rate = 0.1
+    tile_infection_rate = pollution_rate = 0.02
+    flow_rate = 0
+    shuffled_pollution_activate = False
+    animatable_output = False
+    centralized_infectious = False
+    state_after_infection = 1 #1 for SEI, 2 for SI
+    opening_duration = 0 #flash_forward every ...
+    sigma_1 = 4.0
+    sigma_2 = 0
+    n_sigma_2 = 0
+    
+    realisations = 5
+    tMax = 20
+    
+    args1 = N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        , tile_infection_rate, flow_rate, tMax,\
+        shuffled_pollution_activate, animatable_output,\
+        centralized_infectious, state_after_infection,\
+        opening_duration, sigma_1, sigma_2, n_sigma_2
+    
+    N = 100
+    N_ill = 1
+    Lx = Ly = 30
+    stepSize = 0.5
+    infection_rate = 0.1
+    tile_infection_rate = pollution_rate = 0.02
+    flow_rate = 0
+    shuffled_pollution_activate = False
+    animatable_output = False
+    centralized_infectious = False
+    state_after_infection = 1 #1 for SEI, 2 for SI
+    opening_duration = 0 #flash_forward every ...
+    sigma_1 = 0.001
+    sigma_2 = 0
+    n_sigma_2 = 0
+    
+    args2 = N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        , tile_infection_rate, flow_rate, tMax,\
+        shuffled_pollution_activate, animatable_output,\
+        centralized_infectious, state_after_infection,\
+        opening_duration, sigma_1, sigma_2, n_sigma_2
     #---------------N---N_ill--Lx--Ly----step---inf rate--poll rate--tile inf rate--flow rate--time -- 
 
-    jobs[0] = tuple([N, N_ill, Lx, Ly, stepSize, 0.85       , 0.05,        0.05,       0,    tMax,shuffled_pollution_activate, False, centralized_infectious])
-    #jobs[1] = tuple([N, N_ill, Lx, Ly, stepSize, 0.65       , 0.1,        0.1,       0,    tMax])
-    #jobs[2] = tuple([N, N_ill, Lx, Ly, stepSize, 0.4       , 0.2,        0.2,       0    ,tMax])
+    N = 100
+    N_ill = 1
+    Lx = Ly = 30
+    stepSize = 0.5
+    infection_rate = 0.1
+    tile_infection_rate = pollution_rate = 0.02
+    flow_rate = 0
+    shuffled_pollution_activate = False
+    animatable_output = False
+    centralized_infectious = False
+    state_after_infection = 1 #1 for SEI, 2 for SI
+    opening_duration = 0 #flash_forward every ...
+    sigma_1 = 0.001
+    sigma_2 = 4.0
+    n_sigma_2 = 50
+    
+    args3 = N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+        , tile_infection_rate, flow_rate, tMax,\
+        shuffled_pollution_activate, animatable_output,\
+        centralized_infectious, state_after_infection,\
+        opening_duration, sigma_1, sigma_2, n_sigma_2
+
+    jobs[0] = tuple(args1)
+    jobs[1] = tuple(args2)
+    jobs[2] = tuple(args3)
 
 
     for job in jobs:
@@ -58,10 +120,10 @@ if __name__ ==  '__main__':
             #else:
                 #f.write('not shuffled\n')
     
-            f.write( 'shuffled_pollution_activate=' + str( shuffled_pollution_activate ) + '\n' )
-            f.write( 'centralized_infectious=' + str( centralized_infectious ) + '\n' )
-            f.write( 'infection_rate=' + str( infection_rate ) + '\n' )
-            f.write( 'tile_rate=' + str( tile_rate ) + '\n' )
+            # f.write( 'shuffled_pollution_activate=' + str( shuffled_pollution_activate ) + '\n' )
+            # f.write( 'centralized_infectious=' + str( centralized_infectious ) + '\n' )
+            # f.write( 'infection_rate=' + str( infection_rate ) + '\n' )
+            # f.write( 'tile_rate=' + str( tile_rate ) + '\n' )
             f.write( str(job)[1:-1] )
 
         
