@@ -10,13 +10,14 @@ centralized_infectious = False
 if __name__ ==  '__main__':
     
 
-    jobs = np.zeros((3), dtype=[('N', int), ('N_ill', int), ('Lx', int), ('Ly',int), ('step size',float), ('infection rate',float), ('pollution rate',float)\
+    jobs = np.zeros((3), dtype=[('Random seed', int), ('N', int), ('N_ill', int), ('Lx', int), ('Ly',int), ('step size',float), ('infection rate',float), ('pollution rate',float)\
                     , ('tile infection rate',float), ('flow rate',float), ('time',int)\
                     ,('shuffled_pollution',bool), ('animation',bool), ('infectious_center', bool),\
                         ('state_after_infection',int), ('opening_duration',int), ('sigma_1', float),\
                             ('sigma_2', float),('n_sigma_2',int)
                      ] )
-
+    
+    random_seed = np.random.randint(10000)
     N = 100
     N_ill = 1
     Lx = Ly = 30
@@ -36,12 +37,13 @@ if __name__ ==  '__main__':
     realisations = 5
     tMax = 20
     
-    args1 = N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+    args1 = random_seed, N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
         , tile_infection_rate, flow_rate, tMax,\
         shuffled_pollution_activate, animatable_output,\
         centralized_infectious, state_after_infection,\
         opening_duration, sigma_1, sigma_2, n_sigma_2
     
+    random_seed = np.random.randint(10000)
     N = 100
     N_ill = 1
     Lx = Ly = 30
@@ -58,13 +60,14 @@ if __name__ ==  '__main__':
     sigma_2 = 0
     n_sigma_2 = 0
     
-    args2 = N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+    args2 = random_seed, N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
         , tile_infection_rate, flow_rate, tMax,\
         shuffled_pollution_activate, animatable_output,\
         centralized_infectious, state_after_infection,\
         opening_duration, sigma_1, sigma_2, n_sigma_2
     #---------------N---N_ill--Lx--Ly----step---inf rate--poll rate--tile inf rate--flow rate--time -- 
 
+    random_seed = np.random.randint(10000)
     N = 100
     N_ill = 1
     Lx = Ly = 30
@@ -81,7 +84,7 @@ if __name__ ==  '__main__':
     sigma_2 = 4.0
     n_sigma_2 = 50
     
-    args3 = N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
+    args3 = random_seed, N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
         , tile_infection_rate, flow_rate, tMax,\
         shuffled_pollution_activate, animatable_output,\
         centralized_infectious, state_after_infection,\
