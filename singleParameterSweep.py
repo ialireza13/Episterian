@@ -3,14 +3,13 @@ from simulate import simulate
 import multiprocessing as mp
 
 if __name__ ==  '__main__': 
-    jobs = []
 
     N = 100
     N_ill = 1
     Lx = Ly = 30
     stepSize = 0.5
-    infection_rate = 0.1
-    tile_infection_rate = pollution_rate = 0.02
+    infection_rate = 0.06
+    tile_infection_rate = pollution_rate = 0.01
     flow_rate = 0
     shuffled_pollution_activate = False
     animatable_output = False
@@ -22,13 +21,12 @@ if __name__ ==  '__main__':
     n_sigma_2 = 0
     
     realisations = 10000
-    tMax = 3000
+    tMax = 6000
 
-    sigma = (0.0, 0.1, 5.0)
+    sigma = (0.00001, 0.05, 6.00001)
     
     sigma = np.arange(start=sigma[0], step=sigma[1], stop=sigma[2])
-    results = np.zeros((len(sigma), realisations))
-
+    rand_id = str(np.random.randint(100000000))
     for i in range(len(sigma)):
 
         args = N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
@@ -42,15 +40,12 @@ if __name__ ==  '__main__':
             res = p_r.get()
         for j in range(len(res)):
             res[j] = (res[j]['from_per'].cumsum(), res[j]['from_env'].cumsum())
-        results[i] = res
+        
+        id_string = 'sigma=' + str(sigma[i]) + ', ' + rand_id
     
-    rand_id = str(np.random.randint(100000000))
-    id_string = 'sigma sweep' + str(realisations) + ', ' + rand_id
+        np.save(id_string, res)
     
-    np.save('Results/' + id_string, results)
-    np.save('Results/' + 'param_'+id_string, sigma)
-    
-    with open("Results/info sweep " + rand_id, "w") as f: 
+    with open("info sweep " + rand_id, "w") as f: 
         f.write( 'parameter sweep:\n\n' )
         
         f.write( str(args)[1:-1] )
