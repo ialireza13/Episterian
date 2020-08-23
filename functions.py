@@ -239,7 +239,7 @@ def init_movements(agents, positions, destinations, distances, N, Lx, Ly, tile_x
     
     relax_agents(agents, positions, destinations, distances, N, Lx, Ly, tile_x_size, tile_y_size)
     
-def relax_agents(agents, positions, destinations, distances, N, Lx, Ly, tile_x_size, tile_y_size, number_of_steps = 0):
+def relax_agents(agents, positions, destinations, distances, N, Lx, Ly, tile_x_size, tile_y_size, number_of_steps = 30):
     for step in range(number_of_steps):
         active_walk(agents, positions, destinations, distances, N, Lx, Ly, tile_x_size, tile_y_size)
 
