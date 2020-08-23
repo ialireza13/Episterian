@@ -16,34 +16,36 @@ if __name__ ==  '__main__':
     centralized_infectious = False
     state_after_infection = 1 #1 for SEI, 2 for SI
     opening_duration = 0 #flash_forward every ...
-    # sigma_1 = 4.0
-    sigma_2 = 0
-    n_sigma_2 = 0
+    sigma_1 = 1.0
+    sigma_2 = 4.0
+    # n_sigma_2 = 0
     
     realisations = 10000
-    tMax = 6000
+    tMax = 3000
 
-    sigma = (0.00001, 0.05, 6.00001)
-    
-    sigma = np.arange(start=sigma[0], step=sigma[1], stop=sigma[2])
+    n_sigma = (0, 0.1, 1.001)
+    n_sigma = np.arange(start=n_sigma[0], step=n_sigma[1], stop=n_sigma[2])
+    print(n_sigma)
     rand_id = str(np.random.randint(100000000))
-    for i in range(len(sigma)):
+    for i in range(len(n_sigma)):
 
         args = N, N_ill, Lx, Ly, stepSize, infection_rate, pollution_rate\
                 , tile_infection_rate, flow_rate, tMax,\
                 shuffled_pollution_activate, animatable_output,\
                 centralized_infectious, state_after_infection,\
-                opening_duration, sigma[i], sigma_2, n_sigma_2
+                opening_duration, sigma_1, sigma_2, int(n_sigma[i]*N)
                 
         with mp.Pool(mp.cpu_count()) as pool:
             p_r = pool.map_async(simulate, [(np.random.randint(10000000),)+args for i in range(realisations)])
             res = p_r.get()
         for j in range(len(res)):
             res[j] = (res[j]['from_per'].cumsum(), res[j]['from_env'].cumsum())
-        
-        id_string = 'sigma=' + str(sigma[i]) + ', ' + rand_id
-    
-        np.save(id_string, res)
+        output = np.zeros((2,2,tMax))
+        output[0] = np.mean(res,0)
+        output[1] = np.std(res,0)
+        id_string = 'n_sigma=' + str(n_sigma[i]) + ', ' + rand_id
+
+        np.save(id_string, output)
     
     with open("info sweep " + rand_id, "w") as f: 
         f.write( 'parameter sweep:\n\n' )
