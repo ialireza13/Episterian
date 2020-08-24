@@ -69,8 +69,6 @@ def simulate(args):
     tile_x_size = Lx / tile_x_num
     tile_y_size = Ly / tile_y_num
 
-    
-    
     disease_timeline = np.zeros( ( tMax ), dtype=[ ('from_per',int), ('from_env',int)] )
 
     agents = np.zeros((N), dtype=[('tile_x',int), ('tile_y',int), ('health',int), ('sigma', float)] )

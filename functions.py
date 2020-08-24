@@ -75,8 +75,8 @@ def agent_agent_interaction(agents, positions, distances, dt = 0.1, cut_off = 3)
         sigma_1 = agents['sigma'][i1]
         sigma_2 = agents['sigma'][i2]
 
-        force_mag_1 = 7 * np.exp( -distance / sigma_1 )
-        force_mag_2 = 7 * np.exp( -distance / sigma_2 )
+        force_mag_1 = 7.0 * np.exp( -distance / sigma_1 )
+        force_mag_2 = 7.0 * np.exp( -distance / sigma_2 )
 
         
         force_1 = force_mag_1 * r_norm

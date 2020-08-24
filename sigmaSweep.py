@@ -8,8 +8,8 @@ if __name__ ==  '__main__':
     N_ill = 1
     Lx = Ly = 10
     stepSize = 0.5
-    infection_rate = 0.06
-    tile_infection_rate = pollution_rate = 0.01
+    infection_rate = 0.01
+    tile_infection_rate = pollution_rate = 0.005
     flow_rate = 0
     shuffled_pollution_activate = False
     animatable_output = False
@@ -20,12 +20,12 @@ if __name__ ==  '__main__':
     sigma_2 = 0
     n_sigma_2 = 0
     
-    realisations = 5000
-    tMax = 3000
-
-    sigma = (0.0001, 0.5, 10.10001)
-    sigma = np.arange(start=sigma[0], step=sigma[1], stop=sigma[2])
-    print(sigma.shape)
+    realisations = 7000
+    tMax = 6000
+    
+    # sigma = (0.0001, 0.5, 10.10001)
+    # sigma = np.arange(start=sigma[0], step=sigma[1], stop=sigma[2])
+    sigma = [5.3]
     rand_id = str(np.random.randint(100000000))
     for i in range(len(sigma)):
 
@@ -43,7 +43,6 @@ if __name__ ==  '__main__':
         output = np.zeros((2,2,tMax))
         output[0] = np.mean(res,0)
         output[1] = np.std(res,0)
-        SystemExit
         id_string = 'sigma=' + str(sigma[i]) + ', ' + rand_id
 
         np.save(id_string, output)
