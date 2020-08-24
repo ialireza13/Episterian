@@ -74,9 +74,11 @@ def agent_agent_interaction(agents, positions, distances, dt = 0.1, cut_off = 3)
         r_norm = (r1 - r2) / distance
         sigma_1 = agents['sigma'][i1]
         sigma_2 = agents['sigma'][i2]
-        force_mag_1 = sigma_1 * np.exp( -distance / sigma_1 )
-        force_mag_2 = sigma_2 * np.exp( -distance / sigma_2 )
 
+        force_mag_1 = 7 * np.exp( -distance / sigma_1 )
+        force_mag_2 = 7 * np.exp( -distance / sigma_2 )
+
+        
         force_1 = force_mag_1 * r_norm
         force_2 = force_mag_2 * r_norm
 
@@ -252,3 +254,24 @@ def get_destin_anim(destinations, destin_anim, tile_infection_rate):
         destin_anim[destinations[0, 0], destinations[0, 1]] = (tile_infection_rate / 2)
     else:
         destin_anim[destinations[0, 0], destinations[0, 1]] = 0.5
+
+        
+def get_neighbor_dists(distances):
+    min_dists = np.zeros( len(distances) )
+    #print(distances.min())
+    for i_row, row in enumerate(distances):
+        min_dists[i_row] = row[(row > 0)].min()
+    return min_dists
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
