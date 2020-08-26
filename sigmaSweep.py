@@ -6,7 +6,7 @@ if __name__ ==  '__main__':
 
     N = 100
     N_ill = 1
-    Lx = Ly = 10
+    Lx = Ly = 30
     stepSize = 0.5
     infection_rate = 0.01
     tile_infection_rate = pollution_rate = 0.005
@@ -25,7 +25,7 @@ if __name__ ==  '__main__':
     
     # sigma = (0.0001, 0.5, 10.10001)
     # sigma = np.arange(start=sigma[0], step=sigma[1], stop=sigma[2])
-    sigma = [5.3]
+    sigma = [2.0]
     rand_id = str(np.random.randint(100000000))
     for i in range(len(sigma)):
 

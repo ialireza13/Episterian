@@ -26,7 +26,7 @@ def active_walk(agents, positions, destinations, distances, N, Lx, Ly, tile_x_si
 
 
     agent_self_adjustment(agents, positions, destinations, Lx, Ly, tile_x_size, tile_y_size\
-                          , prefer_speed = 1.1, dt = 0.1, tau_inv = 2)
+                          , dt = 0.1, tau_inv = 2)
     x = positions[:, 0]
     y = positions[:, 1]
     vx = positions[:, 2]
