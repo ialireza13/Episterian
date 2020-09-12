@@ -255,6 +255,12 @@ def get_destin_anim(destinations, destin_anim, tile_infection_rate):
     else:
         destin_anim[destinations[0, 0], destinations[0, 1]] = 0.5
 
+def get_destin_anim_pos( destinations, tile_x_size, tile_y_size):
+    zeroth_destin = destinations[0]    
+    x = zeroth_destin[0] * tile_x_size
+    y = zeroth_destin[1] * tile_y_size
+    return np.array([x, y])
+
         
 def get_neighbor_dists(distances):
     min_dists = np.zeros( len(distances) )

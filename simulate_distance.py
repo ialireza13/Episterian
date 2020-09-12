@@ -179,4 +179,6 @@ def simulate(args):
         #if shuffled_pollution_activate:
          #we can keep a record of the fake polluted tiles.   
 
-    return disease_timeline, distance_history
+    #return disease_timeline
+    #print(sigma_1)
+    return distance_history

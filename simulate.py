@@ -94,10 +94,8 @@ def simulate(args):
     
     if animatable_output:
         pollution_history = np.zeros( (tMax, tile_x_num, tile_y_num),float )
-        destin_anim = np.zeros_like( pollution, float )
-        #agents_history = np.zeros((tMax, N), dtype=[('x', 'float'), ('y', 'float'), ('tile_x',int), ('tile_y',int), ('health',int)] )
-        #agents_history = np.zeros((tMax, N), dtype=[('x', 'float'), ('y', 'float'), ('tile_x',int), ('tile_y',int), ('health',int)])
-        #agents_history = np.zeros((tMax, N), dtype=[('tile_x',int), ('tile_y',int), ('health',int)])
+        #destin_anim = np.zeros_like( pollution, float )
+        destin_anim_pos = np.zeros((tMax,2))
         agents_history = np.zeros((tMax, N), dtype=[('x',float), ('y',float), ('health',int)])
 
 
@@ -122,8 +120,13 @@ def simulate(args):
             
             
             if animatable_output:
-                get_destin_anim(destinations, destin_anim, tile_infection_rate)
-                pollution_history[t] = pollution + destin_anim
+                #get_destin_anim(destinations, destin_anim, tile_infection_rate)
+                #pollution_history[t] = pollution + destin_anim
+                
+                pollution_history[t] = pollution
+                
+                destin_anim_pos[t] = get_destin_anim_pos( destinations, tile_x_size, tile_y_size)
+                
                 agents_history[t]['x'] = positions[:, 0]
                 agents_history[t]['y'] = positions[:, 1]
                 agents_history[t]['health'] = agents['health']
@@ -153,14 +156,21 @@ def simulate(args):
 
             
             if animatable_output:
-                get_destin_anim(destinations, destin_anim, tile_infection_rate)
-                pollution_history[t] = pollution + destin_anim
+                #get_destin_anim(destinations, destin_anim, tile_infection_rate)
+                #pollution_history[t] = pollution + destin_anim
+                pollution_history[t] = pollution
+                
+                destin_anim_pos[t] = get_destin_anim_pos( destinations, tile_x_size, tile_y_size)
+                
                 agents_history[t]['x'] = positions[:, 0]
                 agents_history[t]['y'] = positions[:, 1]
                 agents_history[t]['health'] = agents['health']
+
                 
     if animatable_output:
+
         np.save('Results/pollution_history', pollution_history)
+        np.save('Results/destination_history', destin_anim_pos)
         np.save('Results/agents_history', agents_history)
         #if shuffled_pollution_activate:
          #we can keep a record of the fake polluted tiles.   
